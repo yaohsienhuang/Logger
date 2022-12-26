@@ -1,7 +1,7 @@
 # Logger
-* 使用裝飾器將常用的 logging module 更便利使用
-* 紀錄function開始與結束時間，並使用 try except 記錄報錯資訊
-* function 中使用 yield 搭配可將訊息紀錄下來
+* 使用裝飾器將常用的 logging module 包裝後更便利使用
+* 紀錄 function 開始與結束時間，並使用 try except 記錄報錯資訊
+* 裝飾器使用 generator，因此 function 中使用 yield 搭配可將訊息紀錄下來
 
 ## 使用方式：
 ```python=
