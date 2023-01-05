@@ -1,4 +1,6 @@
 import os
+import sys
+import traceback
 import logging
 from logging.handlers import TimedRotatingFileHandler
 
@@ -26,17 +28,25 @@ class Logger(init_logging):
         def deli_args(*args,**kwargs):
             self.title=func.__name__
             self.logger.info('[%s] start...'%self.title)
-            progress_generator=func(*args,**kwargs)
+            try:
+                gen=func(*args,**kwargs)
+            except Exception as e:
+                errMsg=self.error_message(e)
+                self.logger.warning('[%s] %s'% (self.title ,str(errMsg)))
+                return False,str(errMsg)
+            
             try:
                 while True:
-                    msg=next(progress_generator)
+                    msg=next(gen)
                     self.pin(msg)
                     
             except StopIteration as result:
                 return result.value
             
             except Exception as e:
-                self.logger.warning('[%s] %s'% (self.title ,str(e)))
+                errMsg=self.error_message(e)
+                self.logger.warning('[%s] %s'% (self.title ,str(errMsg)))
+                return False,str(errMsg)
                 
             finally:
                 self.logger.info('[%s] end.'% self.title)
@@ -45,6 +55,16 @@ class Logger(init_logging):
     
     def pin(self,msg):
         self.logger.info('[%s] msg : %s '% (self.title,msg))
+        
+    def error_message(self,e):
+        error_class = e.__class__.__name__
+        detail = e.args[0]
+        cl, exc, tb = sys.exc_info()
+        lastCallStack = traceback.extract_tb(tb)[-1]
+        fileName = lastCallStack[0]
+        lineNum = lastCallStack[1]
+        funcName = lastCallStack[2]
+        return "\"{}\", line {}, in {}: [{}] {}".format(fileName, lineNum, funcName, error_class, detail)
             
             
 if __name__=='__main__':
